@@ -8,3 +8,12 @@ func InArray(arr []string, ele string) bool {
 	}
 	return false
 }
+
+// StringArrayCopy 拷贝字符串切片
+func StringArrayCopy(src []string) (dst []string) {
+	dst = make([]string, 0)
+	for _, srcStr := range src {
+		dst = append(dst, srcStr)
+	}
+	return
+}

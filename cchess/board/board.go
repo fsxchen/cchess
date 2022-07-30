@@ -1,6 +1,7 @@
 package board
 
 import (
+	"cchess/cchess/piece"
 	"cchess/util"
 	"fmt"
 	"strconv"
@@ -31,7 +32,7 @@ import (
 */
 
 //const FULL_INIT_FEN = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"
-const FULL_INIT_FEN = "r"
+const FULL_INIT_FEN = "rn"
 
 var _TEXT_BOARD = []string{
 	//" 1   2   3   4   5   6   7   8   9",
@@ -61,23 +62,6 @@ var _TEXT_BOARD = []string{
 }
 
 var (
-	FENCH_NAME_DICT = map[string]string{
-		"K": "帅",
-		"k": "将",
-		"A": "仕",
-		"a": "士",
-		"B": "相",
-		"b": "象",
-		"N": "马",
-		"n": "马",
-		"R": "车",
-		"r": "车",
-		"C": "炮",
-		"c": "炮",
-		"P": "兵",
-		"p": "卒",
-	}
-
 	NAME_FENCH_DICT = map[string]string{
 		"帅": "K",
 		"将": "k",
@@ -94,43 +78,43 @@ var (
 )
 
 type BaseChessBoard struct {
-	board [10][9]string
+	// 用来存放棋子的地方
+	board [10][9]piece.IPiece
 }
 
 // TextView 在文本试图下的棋盘，也就是把board对应带文本界面
 func (bb *BaseChessBoard) TextView() []string {
-	boardStr := _TEXT_BOARD[:]
-
+	//boardStr := make([]string, len(_TEXT_BOARD))
+	boardStr := util.StringArrayCopy(_TEXT_BOARD)
 	y := 0
 	// 效率有点低
 	for _, line := range bb.board {
-		x := 0
-		for _, ch := range line {
-			if ch != "" && ch != " " {
-				fmt.Println(ch)
-				pos := Pos{x, y}
+		x := 8
+		// 这里的line是数组，不必担心不能使用len取长度的问题
+		for i := len(line); i > 0; i-- {
+			// 从后面往前处理，是因为一个棋子，在图上占用了2个格子，从后往前不用担心数据处理的问题了
+			ch := line[i-1]
+			if ch != nil {
+				pos := piece.NewPos(x, y)
 				textPos := pos.ToViewPos()
-				fmt.Println(textPos.y, textPos.x, "....")
 				// 找到第y列，更新其中的字符串
 				//boardStr[textPos.y]
-				newTextLine := boardStr[textPos.y][:textPos.x-1] + fench_to_txt_name(ch) + boardStr[textPos.y][textPos.x+3:]
-				boardStr[textPos.y] = newTextLine
+				// 先把找到的行转换成[]rune
+				line := []rune(boardStr[textPos.Y])
+				line[textPos.X] = []rune(ch.ShowName())[0]
+				line = append(line[:textPos.X+1], line[textPos.X+2:]...)
+				boardStr[textPos.Y] = string(line)
 			}
-			x++
+			x--
 		}
 		y++
 	}
 	return boardStr
 }
 
-func fench_to_txt_name(ch string) string {
-	return FENCH_NAME_DICT[ch]
-}
-
 // PrintBoard 打印棋盘
 func (bb *BaseChessBoard) PrintBoard() {
 	//boardStr := _TEXT_BOARD[:]
-	fmt.Println(bb.board)
 	for _, line := range bb.TextView() {
 		fmt.Println(line)
 	}
@@ -165,7 +149,7 @@ func (bb *BaseChessBoard) FromFen(fen string) bool {
 			}
 		} else if util.InArray(chSet, strings.ToLower(ch)) {
 			if x <= 8 {
-				bb.PutFench(ch, Pos{x, y})
+				bb.PutFench(ch, piece.Pos{x, y})
 				x += 1
 			}
 		} else {
@@ -178,17 +162,40 @@ func (bb *BaseChessBoard) FromFen(fen string) bool {
 }
 
 // PutFench 在board中，加入一个棋子
-func (bb *BaseChessBoard) PutFench(ch string, p Pos) {
-	bb.board[p.y][p.x] = ch
+func (bb *BaseChessBoard) PutFench(ch string, p piece.Pos) {
+	bb.board[p.Y][p.X] = piece.NewPiece(ch)
 }
 
 // 清空棋盘
 func (bb *BaseChessBoard) clear() {
 	for y := 0; y < 10; y++ {
 		for x := 0; x < 9; x++ {
-			bb.board[y][x] = " "
+			bb.board[y][x] = nil
 		}
 	}
+}
+
+func (bb *BaseChessBoard) Move(from, to piece.Pos) {
+	//  移动一个棋子到另外一个地方
+	fromPiece := bb.GetPieceByPos(from)
+	if fromPiece == nil {
+		fmt.Errorf("error")
+		return
+	}
+	bb.movePiece(from, to)
+}
+
+// GetPieceByPos 根据坐标获取棋子
+func (bb *BaseChessBoard) GetPieceByPos(pos piece.Pos) piece.IPiece {
+	return bb.board[pos.Y][pos.X]
+}
+
+// 移动内部的棋子
+func (bb *BaseChessBoard) movePiece(from, to piece.Pos) piece.IPiece {
+	fench := bb.board[from.Y][from.X]
+	bb.board[to.Y][to.X] = fench
+	bb.board[from.Y][from.X] = nil
+	return fench
 }
 
 type ChessBoard struct {
