@@ -1,23 +1,55 @@
 package main
 
 import (
-	"cchess/cchess/board"
+	"cchess/cchess/game"
 	"cchess/cchess/piece"
+	"fmt"
 )
 
 func main() {
-	bboard := board.BaseChessBoard{}
-	FULL_INIT_FEN := "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"
-	//FULL_INIT_FEN := "rn"
-	bboard.FromFen(FULL_INIT_FEN)
+	g := game.NewGame()
+
+	//from := piece.NewPos(0, 0)
+	//to := piece.NewPos(0, 2)
+	//
+	//from1 := piece.NewPos(0, 2)
+	//to1 := piece.NewPos(0, 0)
+	//
+	////bboard.Move(x, y)
+	//bboard.Move(from, to)
+	//bboard.Move(from1, to1)
 	//bboard.PrintBoard()
-	x := piece.NewPos(0, 0)
-	y := piece.NewPos(0, 4)
+	//fmt.Println(bboard.GetMoveWays(piece.NewPos(0, 3)))
+	//g.Show()
+	//r, p := g.GetPieceByName("R", 0)
+	//fmt.Println(r, p, "xxx")
+	//fmt.Println("-----")
+	//g.Run("")
+	//g.RunCmd("兵一进一")
+	//g.RunCmd("兵一进一")
+	g.RunCmd("車1进1")
+	//g.RunCmd("兵一进一")
+	//g.RunCmd("车一进四")
+	//g.RunCmd("炮二进六")
+	//g.RunCmd("兵一进二")
+	//g.RunCmd("车一进二")
+	//g.RunCmd("炮二进三")
+	//g.RunCmd("车九进二")
+	//g.RunCmd("马二进三")
+	//fmt.Println(g.GetMoveWays(g.Board.GetFetchByPos(piece.Pos{7, 2})))
+	//fmt.Println(g.GetMoveWays(g.Board.GetFetchByPos(piece.Pos{0, 9})))
+	//fmt.Println(g.GetMoveWays(g.Board.GetFetchByPos(piece.Pos{1, 7})))
+	//fmt.Println(g.GetMoveWays(g.Board.GetFetchByPos(piece.Pos{1, 9})))
+	//fmt.Println(g.GetMoveWays(g.Board.GetFetchByPos(piece.Pos{4, 9})))
+	//fmt.Println(g.GetMoveWays(g.Board.GetFetchByPos(piece.Pos{4, 0})))
+	fmt.Println(g.GetMoveWays(g.Board.GetFetchByPos(piece.Pos{6, 0})))
+	//g.MoveUp(piece.Pos{8, 3}, 1)
+	//g.Show()
 
-	from := piece.NewPos(1, 0)
-	to := piece.NewPos(1, 1)
+	//g.Move(piece.Pos{0, 0}, piece.Pos{0, 1})
+	g.Show()
+	//ways := g.GetMoveWays(piece.Pos{0, 3})
 
-	bboard.Move(x, y)
-	bboard.Move(from, to)
-	bboard.PrintBoard()
+	//fmt.Println(ways)
+
 }
